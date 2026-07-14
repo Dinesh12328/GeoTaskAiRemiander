@@ -1,4 +1,4 @@
-package com.example.geotaskaireminder.ui
+package com.dinesh.geotaskai.notification
 
 import android.Manifest
 import android.app.NotificationChannel
@@ -11,8 +11,9 @@ import android.os.Build
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
-import com.example.geotaskaireminder.R
-import com.example.geotaskaireminder.model.TaskEntity
+import com.dinesh.geotaskai.R
+import com.dinesh.geotaskai.data.TaskEntity
+import com.dinesh.geotaskai.ui.TaskDetailsActivity
 
 class NotificationHelper(private val context: Context) {
     init {
@@ -56,11 +57,11 @@ class NotificationHelper(private val context: Context) {
             detailsIntent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
         )
-        val content = context.getString(R.string.notification_task_location, task.locationName)
+        val content = context.getString(R.string.notification_task_location, task.locationName.orEmpty())
 
         val notification = NotificationCompat.Builder(context, CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_notification)
-            .setContentTitle(task.title)
+            .setContentTitle(task.title.orEmpty())
             .setContentText(content)
             .setStyle(NotificationCompat.BigTextStyle().bigText(content))
             .setContentIntent(pendingIntent)

@@ -1,11 +1,11 @@
-package com.example.geotaskaireminder.ui
+package com.dinesh.geotaskai.ui
 
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
-import com.example.geotaskaireminder.R
-import com.example.geotaskaireminder.databinding.ActivityMapPickerBinding
+import com.dinesh.geotaskai.R
+import com.dinesh.geotaskai.databinding.ActivityMapPickerBinding
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback

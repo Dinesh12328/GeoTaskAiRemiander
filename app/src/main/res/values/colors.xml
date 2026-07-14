@@ -1,15 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="app_background">#F6F8F5</color>
+    <color name="app_background">#F7F8FF</color>
     <color name="surface">#FFFFFF</color>
-    <color name="surface_tint">#EDF4F1</color>
-    <color name="border">#D5DED8</color>
-    <color name="text_primary">#16211E</color>
-    <color name="text_secondary">#4E625B</color>
-    <color name="text_muted">#72817B</color>
-    <color name="action_primary">#146C5C</color>
-    <color name="action_primary_dark">#0C4A41</color>
-    <color name="action_accent">#B54F3E</color>
+    <color name="surface_tint">#EEF2FF</color>
+    <color name="border">#D9DFF2</color>
+    <color name="text_primary">#111827</color>
+    <color name="text_secondary">#4B5563</color>
+    <color name="text_muted">#6B7280</color>
+    <color name="action_primary">#2563EB</color>
+    <color name="action_primary_dark">#1E40AF</color>
+    <color name="action_accent">#7C3AED</color>
     <color name="on_primary">#FFFFFF</color>
-    <color name="soft_success">#DCEDE7</color>
+    <color name="soft_success">#DCFCE7</color>
+    <color name="danger">#DC2626</color>
+    <color name="danger_container">#FEE2E2</color>
+    <color name="priority_low">#059669</color>
+    <color name="priority_medium">#2563EB</color>
+    <color name="priority_high">#7C3AED</color>
 </resources>

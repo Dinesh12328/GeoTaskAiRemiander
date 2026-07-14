@@ -1,4 +1,4 @@
-package com.example.geotaskaireminder.ai
+package com.dinesh.geotaskai.ai
 
 data class AiParsedTask(
     val title: String,

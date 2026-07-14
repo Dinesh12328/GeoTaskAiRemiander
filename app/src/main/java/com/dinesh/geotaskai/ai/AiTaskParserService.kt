@@ -1,6 +1,6 @@
-package com.example.geotaskaireminder.ai
+package com.dinesh.geotaskai.ai
 
-import com.example.geotaskaireminder.BuildConfig
+import com.dinesh.geotaskai.BuildConfig
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.BufferedReader

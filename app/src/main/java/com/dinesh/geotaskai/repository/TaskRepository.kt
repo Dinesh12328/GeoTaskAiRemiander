@@ -1,26 +1,27 @@
-package com.example.geotaskaireminder.repository
+package com.dinesh.geotaskai.repository
 
 import android.content.Context
 import androidx.lifecycle.LiveData
-import com.example.geotaskaireminder.dao.TaskDao
-import com.example.geotaskaireminder.data.TaskInput
-import com.example.geotaskaireminder.database.AppDatabase
-import com.example.geotaskaireminder.model.TaskEntity
+import com.dinesh.geotaskai.data.TaskInput
+import com.dinesh.geotaskai.data.TaskDao
+import com.dinesh.geotaskai.data.TaskDatabase
+import com.dinesh.geotaskai.data.TaskEntity
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
 class TaskRepository(context: Context) {
-    private val taskDao: TaskDao = AppDatabase.getDatabase(context).taskDao()
+    private val taskDao: TaskDao = TaskDatabase.getDatabase(context).taskDao()
     private val executor: ExecutorService = Executors.newSingleThreadExecutor()
 
     val allTasks: LiveData<List<TaskEntity>> = taskDao.allTasks
 
-    fun getTask(taskId: Long): LiveData<TaskEntity> = taskDao.getTaskById(taskId)
+    fun getTask(taskId: Long): LiveData<TaskEntity?> = taskDao.getTaskById(taskId)
 
     fun createTask(input: TaskInput, onCreated: (TaskEntity) -> Unit = {}) {
         executor.execute {
-            val task = input.toNewEntity()
-            task.id = taskDao.insert(task)
+            val task = input.toNewEntity().also {
+                it.id = taskDao.insert(it)
+            }
             onCreated(task)
         }
     }

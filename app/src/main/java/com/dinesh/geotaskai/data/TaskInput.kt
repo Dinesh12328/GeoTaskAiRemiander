@@ -1,4 +1,4 @@
-package com.example.geotaskaireminder.data
+package com.dinesh.geotaskai.data
 
 data class TaskInput(
     val title: String,

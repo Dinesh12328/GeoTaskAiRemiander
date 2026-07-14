@@ -24,7 +24,7 @@
             android:name=".ui.AddTaskActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.TaskListActivity"
+            android:name=".ui.MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -33,7 +33,7 @@
             </intent-filter>
         </activity>
         <receiver
-            android:name=".ui.GeofenceBroadcastReceiver"
+            android:name=".location.GeofenceBroadcastReceiver"
             android:exported="false" />
         <meta-data
             android:name="com.google.android.geo.API_KEY"

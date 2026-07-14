@@ -1,4 +1,4 @@
-package com.example.geotaskaireminder.ui
+package com.dinesh.geotaskai.ui
 
 import android.Manifest
 import android.content.Context
@@ -22,7 +22,7 @@ class PermissionHelper(private val context: Context) {
     }
 
     fun hasForegroundLocation(): Boolean {
-        return hasFineLocation() && hasCoarseLocation()
+        return hasFineLocation() || hasCoarseLocation()
     }
 
     fun hasBackgroundLocation(): Boolean {
