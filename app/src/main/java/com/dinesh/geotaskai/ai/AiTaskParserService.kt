@@ -30,33 +30,44 @@ class AiTaskParserService(
                 setRequestProperty("x-goog-api-key", apiKey)
             }
 
-            connection.outputStream.use { output ->
-                output.write(buildRequestBody(input).toString().toByteArray(Charsets.UTF_8))
-            }
+            try {
+                connection.outputStream.use { output ->
+                    output.write(buildRequestBody(input).toString().toByteArray(Charsets.UTF_8))
+                }
 
-            val responseBody = connection.readResponseBody()
-            if (connection.responseCode !in 200..299) {
-                throw IllegalStateException("Gemini request failed: ${connection.responseCode}")
-            }
+                val responseBody = connection.readResponseBody()
+                if (connection.responseCode !in 200..299) {
+                    throw IllegalStateException(buildHttpErrorMessage(connection.responseCode, responseBody))
+                }
 
-            parseResponse(responseBody)
+                parseResponse(responseBody).validated()
+            } finally {
+                connection.disconnect()
+            }
         }
     }
 
     private fun buildRequestBody(input: String): JSONObject {
         val prompt = """
-            Extract task fields from this reminder text.
-            Return only JSON with:
-            title: short task title
-            description: useful task details
-            locationName: named place from the text
-            priority: one of Low, Medium, High
+            Extract reminder task fields from this user text.
+
+            Return only JSON with these fields:
+            - title: short action phrase without reminder wording or location timing words
+            - description: one useful sentence describing the reminder
+            - locationName: named place from the text
+            - priority: one of Low, Medium, High
+
+            Priority rules:
+            - High for urgent, important, emergency, exam, deadline, or today
+            - Low for casual or optional tasks
+            - Medium for normal reminders
 
             Text: "$input"
         """.trimIndent()
 
         return JSONObject()
             .put("model", MODEL)
+            .put("store", false)
             .put(
                 "system_instruction",
                 "You extract reminder tasks into strict JSON for an Android task app.",
@@ -73,9 +84,24 @@ class AiTaskParserService(
 
     private fun buildResponseSchema(): JSONObject {
         val properties = JSONObject()
-            .put("title", JSONObject().put("type", "string"))
-            .put("description", JSONObject().put("type", "string"))
-            .put("locationName", JSONObject().put("type", "string"))
+            .put(
+                "title",
+                JSONObject()
+                    .put("type", "string")
+                    .put("description", "Short action title for the task."),
+            )
+            .put(
+                "description",
+                JSONObject()
+                    .put("type", "string")
+                    .put("description", "One sentence with useful reminder details."),
+            )
+            .put(
+                "locationName",
+                JSONObject()
+                    .put("type", "string")
+                    .put("description", "Named place that should trigger the reminder."),
+            )
             .put(
                 "priority",
                 JSONObject()
@@ -95,19 +121,24 @@ class AiTaskParserService(
             return response.toParsedTask()
         }
 
-        val steps = response.optJSONArray("steps")
-        val outputText = response.optString("output_text").ifBlank {
-            if (steps != null && steps.length() > 0) {
-                steps.optJSONObject(steps.length() - 1)?.optString("output_text").orEmpty()
-            } else {
-                ""
-            }
-        }.stripJsonCodeFence()
+        val outputText = response.extractOutputText().stripJsonCodeFence().extractJsonObject()
         if (outputText.isBlank()) {
             throw IllegalStateException("Gemini response did not include parsed text.")
         }
 
         return JSONObject(outputText).toParsedTask()
+    }
+
+    private fun JSONObject.extractOutputText(): String {
+        optString("output_text").takeIf { it.isNotBlank() }?.let { return it }
+
+        val steps = optJSONArray("steps") ?: return ""
+        for (index in steps.length() - 1 downTo 0) {
+            val step = steps.optJSONObject(index) ?: continue
+            step.optString("output_text").takeIf { it.isNotBlank() }?.let { return it }
+            step.optString("text").takeIf { it.isNotBlank() }?.let { return it }
+        }
+        return ""
     }
 
     private fun JSONObject.toParsedTask(): AiParsedTask {
@@ -121,7 +152,37 @@ class AiTaskParserService(
 
     private fun HttpURLConnection.readResponseBody(): String {
         val stream = if (responseCode in 200..299) inputStream else errorStream
+        if (stream == null) return ""
         return BufferedReader(InputStreamReader(stream, Charsets.UTF_8)).use { it.readText() }
+    }
+
+    private fun buildHttpErrorMessage(responseCode: Int, responseBody: String): String {
+        val apiMessage = runCatching {
+            JSONObject(responseBody)
+                .optJSONObject("error")
+                ?.optString("message")
+                .orEmpty()
+        }.getOrDefault("")
+
+        return if (apiMessage.isNotBlank()) {
+            "Gemini request failed: $apiMessage"
+        } else {
+            "Gemini request failed: HTTP $responseCode"
+        }
+    }
+
+    private fun AiParsedTask.validated(): AiParsedTask {
+        if (title.isBlank()) {
+            throw IllegalStateException("Gemini did not return a task title.")
+        }
+        if (locationName.isBlank()) {
+            throw IllegalStateException("Gemini did not return a location name.")
+        }
+
+        return copy(
+            description = description.ifBlank { title },
+            priority = priority.normalizePriority(),
+        )
     }
 
     private fun String.normalizePriority(): String {
@@ -138,6 +199,21 @@ class AiTaskParserService(
             .removePrefix("```")
             .removeSuffix("```")
             .trim()
+    }
+
+    private fun String.extractJsonObject(): String {
+        val trimmed = trim()
+        if (trimmed.startsWith("{") && trimmed.endsWith("}")) {
+            return trimmed
+        }
+
+        val start = trimmed.indexOf('{')
+        val end = trimmed.lastIndexOf('}')
+        return if (start >= 0 && end > start) {
+            trimmed.substring(start, end + 1)
+        } else {
+            trimmed
+        }
     }
 
     private companion object {
