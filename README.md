@@ -13,7 +13,7 @@ Android app for local task reminders with manual location fields.
 - CRUD operations for tasks
 - Manual location fields: location name, latitude, longitude, radius
 - Local test notifications
-- Android Geofencing API registration on task creation
+- Android Geofencing API registration from task details
 - Geofence enter notifications
 - Gemini task parser for natural language task entry
 - Google Maps location picker for latitude and longitude selection
@@ -22,13 +22,12 @@ Not included yet: a Spring Boot backend.
 
 ## Structure
 
-- `data`: input models used by the ViewModel and repository.
-- `model`: Room task entity.
-- `dao`: Room DAO for task queries and CRUD operations.
-- `database`: Room database singleton.
+- `data`: Room entity, DAO, database, and task input model.
 - `repository`: local data access layer.
 - `viewmodel`: task ViewModel.
 - `ai`: Gemini parsing service and parsed task model.
+- `location`: geofence manager, receiver, and error messages.
+- `notification`: local notification helper.
 - `ui`: XML-backed activities for list, create, and details.
 
 ## Gemini Setup
@@ -40,11 +39,39 @@ GEMINI_API_KEY=your_api_key_here
 MAPS_API_KEY=your_maps_api_key_here
 ```
 
-The Gradle build reads the Gemini key into `BuildConfig.GEMINI_API_KEY` and passes the Maps key to the manifest as `MAPS_API_KEY`. Do not commit `local.properties`.
+The Gradle build reads the Gemini key into `BuildConfig.GEMINI_API_KEY`. Do not commit `local.properties`.
 
 ## Maps Setup
 
-In Google Cloud Console, enable **Maps SDK for Android** for your project, create an Android-restricted API key, and place it in `local.properties` as `MAPS_API_KEY`.
+In Google Cloud Console:
+
+1. Enable **Maps SDK for Android**.
+2. Create an API key.
+3. Restrict the key to Android apps using this package name:
+
+```text
+com.dinesh.geotaskai
+```
+
+4. Add the app's SHA-1 certificate fingerprint for the debug or release keystore you are using.
+5. Place the key in `local.properties`:
+
+```properties
+MAPS_API_KEY=your_maps_api_key_here
+```
+
+Gradle passes the key to the Android manifest as `MAPS_API_KEY` for Google Maps and also exposes it as `BuildConfig.MAPS_API_KEY` so the app can show a clear message when the key is missing.
+
+## Test Maps Picker
+
+1. Add `MAPS_API_KEY` to `local.properties`.
+2. Sync Gradle or rebuild the app.
+3. Open **Create Task**.
+4. Tap **Pick on Map**.
+5. Tap a location on the map.
+6. Tap **Use Location**.
+7. Confirm latitude and longitude are filled automatically.
+8. Edit latitude and longitude manually if needed before saving.
 
 ## Run
 

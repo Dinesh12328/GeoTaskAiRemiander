@@ -19,12 +19,17 @@ class MapPickerActivity : ComponentActivity(), OnMapReadyCallback {
     private var googleMap: GoogleMap? = null
     private var marker: Marker? = null
     private var selectedLatLng: LatLng? = null
+    private var pendingSelectedLatLng: LatLng? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMapPickerBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        pendingSelectedLatLng = savedInstanceState?.readLatLng(
+            SAVED_SELECTED_LATITUDE,
+            SAVED_SELECTED_LONGITUDE,
+        )
         binding.mapView.onCreate(savedInstanceState)
         binding.mapView.getMapAsync(this)
         binding.cancelMapButton.setOnClickListener { finish() }
@@ -46,18 +51,26 @@ class MapPickerActivity : ComponentActivity(), OnMapReadyCallback {
 
         val initialLocation = initialLocation()
         googleMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(initialLocation, DEFAULT_ZOOM))
-        if (intent.hasExtra(EXTRA_LATITUDE) && intent.hasExtra(EXTRA_LONGITUDE)) {
-            selectLocation(initialLocation)
+        when {
+            pendingSelectedLatLng != null -> {
+                pendingSelectedLatLng?.let { selectLocation(it, animateCamera = false) }
+            }
+            intent.hasExtra(EXTRA_LATITUDE) && intent.hasExtra(EXTRA_LONGITUDE) -> {
+                selectLocation(initialLocation, animateCamera = false)
+            }
         }
     }
 
     private fun initialLocation(): LatLng {
         val latitude = intent.getDoubleExtra(EXTRA_LATITUDE, DEFAULT_LATITUDE)
         val longitude = intent.getDoubleExtra(EXTRA_LONGITUDE, DEFAULT_LONGITUDE)
+        if (latitude !in -90.0..90.0 || longitude !in -180.0..180.0) {
+            return LatLng(DEFAULT_LATITUDE, DEFAULT_LONGITUDE)
+        }
         return LatLng(latitude, longitude)
     }
 
-    private fun selectLocation(latLng: LatLng) {
+    private fun selectLocation(latLng: LatLng, animateCamera: Boolean = true) {
         selectedLatLng = latLng
         marker?.remove()
         marker = googleMap?.addMarker(
@@ -66,7 +79,12 @@ class MapPickerActivity : ComponentActivity(), OnMapReadyCallback {
                 .title(getString(R.string.selected_location))
                 .draggable(true),
         )
-        googleMap?.animateCamera(CameraUpdateFactory.newLatLng(latLng))
+        val cameraUpdate = CameraUpdateFactory.newLatLng(latLng)
+        if (animateCamera) {
+            googleMap?.animateCamera(cameraUpdate)
+        } else {
+            googleMap?.moveCamera(cameraUpdate)
+        }
         binding.selectedLocationText.text = getString(
             R.string.selected_coordinates,
             latLng.latitude.formatCoordinate(),
@@ -118,7 +136,25 @@ class MapPickerActivity : ComponentActivity(), OnMapReadyCallback {
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
+        selectedLatLng?.let { latLng ->
+            outState.putDouble(SAVED_SELECTED_LATITUDE, latLng.latitude)
+            outState.putDouble(SAVED_SELECTED_LONGITUDE, latLng.longitude)
+        }
         binding.mapView.onSaveInstanceState(outState)
+    }
+
+    private fun Bundle.readLatLng(latitudeKey: String, longitudeKey: String): LatLng? {
+        if (!containsKey(latitudeKey) || !containsKey(longitudeKey)) {
+            return null
+        }
+
+        val latitude = getDouble(latitudeKey)
+        val longitude = getDouble(longitudeKey)
+        return if (latitude in -90.0..90.0 && longitude in -180.0..180.0) {
+            LatLng(latitude, longitude)
+        } else {
+            null
+        }
     }
 
     private fun Double.formatCoordinate(): String = String.format(Locale.US, "%.6f", this)
@@ -126,6 +162,8 @@ class MapPickerActivity : ComponentActivity(), OnMapReadyCallback {
     companion object {
         const val EXTRA_LATITUDE = "extra_latitude"
         const val EXTRA_LONGITUDE = "extra_longitude"
+        private const val SAVED_SELECTED_LATITUDE = "saved_selected_latitude"
+        private const val SAVED_SELECTED_LONGITUDE = "saved_selected_longitude"
         private const val DEFAULT_LATITUDE = 20.5937
         private const val DEFAULT_LONGITUDE = 78.9629
         private const val DEFAULT_ZOOM = 5f

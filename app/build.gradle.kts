@@ -30,6 +30,7 @@ android {
         versionCode = 1
         versionName = "1.0"
         buildConfigField("String", "GEMINI_API_KEY", geminiApiKey.toBuildConfigString())
+        buildConfigField("String", "MAPS_API_KEY", mapsApiKey.toBuildConfigString())
         manifestPlaceholders["MAPS_API_KEY"] = mapsApiKey
     }
 

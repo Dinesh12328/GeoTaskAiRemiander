@@ -97,6 +97,7 @@
     <string name="selected_location">Selected location</string>
     <string name="selected_coordinates">Latitude %1$s, longitude %2$s</string>
     <string name="use_location">Use Location</string>
+    <string name="maps_api_key_missing">Add MAPS_API_KEY to local.properties, sync Gradle, then try the map picker again.</string>
     <string name="title_required_error">Enter a task title</string>
     <string name="location_required_error">Enter a location name</string>
     <string name="latitude_error">Enter latitude from -90 to 90</string>

@@ -8,6 +8,7 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
+import com.dinesh.geotaskai.BuildConfig
 import com.dinesh.geotaskai.R
 import com.dinesh.geotaskai.ai.AiTaskParserService
 import com.dinesh.geotaskai.data.TaskInput
@@ -54,6 +55,11 @@ class AddTaskActivity : ComponentActivity() {
     }
 
     private fun openMapPicker() {
+        if (BuildConfig.MAPS_API_KEY.isBlank()) {
+            Toast.makeText(this, R.string.maps_api_key_missing, Toast.LENGTH_LONG).show()
+            return
+        }
+
         val intent = Intent(this, MapPickerActivity::class.java)
         val latitude = binding.latitudeInput.text.toString().trim().toDoubleOrNull()
         val longitude = binding.longitudeInput.text.toString().trim().toDoubleOrNull()
