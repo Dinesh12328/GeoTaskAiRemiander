@@ -10,6 +10,7 @@ Run these from the project root:
 .\gradlew.bat :app:testDebugUnitTest
 .\gradlew.bat :app:assembleDebug
 .\gradlew.bat :app:lintDebug
+.\gradlew.bat :backend:test
 ```
 
 ## Setup
@@ -62,3 +63,12 @@ Use a real Android device for notification, background location, geofencing, and
 3. Deny background location and confirm CRUD features still work.
 4. Turn off device Location and confirm geofence registration shows a clear failure message.
 5. Leave `MAPS_API_KEY` empty and confirm **Pick on Map** shows the missing-key message.
+
+## Optional Backend
+
+1. Run `.\gradlew.bat :backend:test`.
+2. Run `.\gradlew.bat :backend:bootRun`.
+3. Open `http://localhost:8080/api/tasks` and confirm it returns an empty JSON list.
+4. Create a task with `POST /api/tasks`.
+5. Confirm `GET /api/tasks` returns the created task.
+6. Stop and restart the backend; confirm tasks are cleared because storage is in memory.

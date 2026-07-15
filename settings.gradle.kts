@@ -16,3 +16,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "GeoTaskAIReminder"
 include(":app")
+include(":backend")

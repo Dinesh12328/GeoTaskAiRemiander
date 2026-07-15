@@ -17,8 +17,9 @@ Android app for local task reminders with manual location fields.
 - Geofence enter notifications
 - Gemini task parser for natural language task entry
 - Google Maps location picker for latitude and longitude selection
+- Optional Spring Boot backend with in-memory task CRUD API
 
-Not included yet: a Spring Boot backend.
+The Android app remains offline-first and uses Room locally. The Spring Boot backend is optional and is not required for normal app use.
 
 ## Structure
 
@@ -29,6 +30,7 @@ Not included yet: a Spring Boot backend.
 - `location`: geofence manager, receiver, and error messages.
 - `notification`: local notification helper.
 - `ui`: XML-backed activities for list, create, and details.
+- `backend`: optional Spring Boot REST API module.
 
 ## Gemini Setup
 
@@ -81,9 +83,26 @@ Automated checks:
 .\gradlew.bat :app:testDebugUnitTest
 .\gradlew.bat :app:assembleDebug
 .\gradlew.bat :app:lintDebug
+.\gradlew.bat :backend:test
 ```
 
 Manual testing checklist: [docs/testing.md](docs/testing.md)
+
+## Optional Backend
+
+Run the Spring Boot backend:
+
+```powershell
+.\gradlew.bat :backend:bootRun
+```
+
+The backend starts on:
+
+```text
+http://localhost:8080
+```
+
+API documentation: [docs/backend-api.md](docs/backend-api.md)
 
 ## Run
 
