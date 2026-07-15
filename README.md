@@ -88,6 +88,8 @@ Automated checks:
 
 Manual testing checklist: [docs/testing.md](docs/testing.md)
 
+Project completion summary: [docs/project-summary.md](docs/project-summary.md)
+
 ## Optional Backend
 
 Run the Spring Boot backend:
