@@ -11,6 +11,7 @@ import androidx.activity.viewModels
 import com.dinesh.geotaskai.R
 import com.dinesh.geotaskai.data.TaskEntity
 import com.dinesh.geotaskai.data.TaskInput
+import com.dinesh.geotaskai.data.TaskValidator
 import com.dinesh.geotaskai.databinding.ActivityTaskDetailsBinding
 import com.dinesh.geotaskai.location.GeofenceManager
 import com.dinesh.geotaskai.notification.NotificationHelper
@@ -344,23 +345,23 @@ class TaskDetailsActivity : ComponentActivity() {
         val radius = binding.radiusInput.readDouble(R.string.radius_error)
 
         var valid = true
-        if (title.isBlank()) {
+        if (!TaskValidator.hasRequiredText(title)) {
             binding.titleInput.error = getString(R.string.title_required_error)
             valid = false
         }
-        if (locationName.isBlank()) {
+        if (!TaskValidator.hasRequiredText(locationName)) {
             binding.locationNameInput.error = getString(R.string.location_required_error)
             valid = false
         }
-        if (latitude == null || latitude !in -90.0..90.0) {
+        if (!TaskValidator.isValidLatitude(latitude)) {
             binding.latitudeInput.error = getString(R.string.latitude_error)
             valid = false
         }
-        if (longitude == null || longitude !in -180.0..180.0) {
+        if (!TaskValidator.isValidLongitude(longitude)) {
             binding.longitudeInput.error = getString(R.string.longitude_error)
             valid = false
         }
-        if (radius == null || radius <= 0.0) {
+        if (!TaskValidator.isValidRadius(radius)) {
             binding.radiusInput.error = getString(R.string.radius_error)
             valid = false
         }

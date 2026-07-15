@@ -73,6 +73,18 @@ Gradle passes the key to the Android manifest as `MAPS_API_KEY` for Google Maps 
 7. Confirm latitude and longitude are filled automatically.
 8. Edit latitude and longitude manually if needed before saving.
 
+## Testing
+
+Automated checks:
+
+```powershell
+.\gradlew.bat :app:testDebugUnitTest
+.\gradlew.bat :app:assembleDebug
+.\gradlew.bat :app:lintDebug
+```
+
+Manual testing checklist: [docs/testing.md](docs/testing.md)
+
 ## Run
 
 Open this folder in Android Studio, let Gradle sync, and run the `app` configuration.

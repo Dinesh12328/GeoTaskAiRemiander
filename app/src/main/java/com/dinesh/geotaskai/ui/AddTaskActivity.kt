@@ -12,6 +12,7 @@ import com.dinesh.geotaskai.BuildConfig
 import com.dinesh.geotaskai.R
 import com.dinesh.geotaskai.ai.AiTaskParserService
 import com.dinesh.geotaskai.data.TaskInput
+import com.dinesh.geotaskai.data.TaskValidator
 import com.dinesh.geotaskai.databinding.ActivityTaskCreateBinding
 import com.dinesh.geotaskai.viewmodel.TaskViewModel
 import java.util.Locale
@@ -63,7 +64,7 @@ class AddTaskActivity : ComponentActivity() {
         val intent = Intent(this, MapPickerActivity::class.java)
         val latitude = binding.latitudeInput.text.toString().trim().toDoubleOrNull()
         val longitude = binding.longitudeInput.text.toString().trim().toDoubleOrNull()
-        if (latitude != null && longitude != null && latitude in -90.0..90.0 && longitude in -180.0..180.0) {
+        if (TaskValidator.isValidLatitude(latitude) && TaskValidator.isValidLongitude(longitude)) {
             intent.putExtra(MapPickerActivity.EXTRA_LATITUDE, latitude)
             intent.putExtra(MapPickerActivity.EXTRA_LONGITUDE, longitude)
         }
@@ -124,23 +125,23 @@ class AddTaskActivity : ComponentActivity() {
         val radius = binding.radiusInput.readDouble(R.string.radius_error)
 
         var valid = true
-        if (title.isBlank()) {
+        if (!TaskValidator.hasRequiredText(title)) {
             binding.titleInput.error = getString(R.string.title_required_error)
             valid = false
         }
-        if (locationName.isBlank()) {
+        if (!TaskValidator.hasRequiredText(locationName)) {
             binding.locationNameInput.error = getString(R.string.location_required_error)
             valid = false
         }
-        if (latitude == null || latitude !in -90.0..90.0) {
+        if (!TaskValidator.isValidLatitude(latitude)) {
             binding.latitudeInput.error = getString(R.string.latitude_error)
             valid = false
         }
-        if (longitude == null || longitude !in -180.0..180.0) {
+        if (!TaskValidator.isValidLongitude(longitude)) {
             binding.longitudeInput.error = getString(R.string.longitude_error)
             valid = false
         }
-        if (radius == null || radius <= 0.0) {
+        if (!TaskValidator.isValidRadius(radius)) {
             binding.radiusInput.error = getString(R.string.radius_error)
             valid = false
         }

@@ -11,6 +11,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.edit
 import com.dinesh.geotaskai.R
 import com.dinesh.geotaskai.data.TaskEntity
+import com.dinesh.geotaskai.data.TaskValidator
 import com.dinesh.geotaskai.notification.NotificationHelper
 import com.dinesh.geotaskai.ui.PermissionHelper
 import com.google.android.gms.common.ConnectionResult
@@ -149,13 +150,13 @@ class GeofenceManager(context: Context) {
         if (task.id <= 0L) {
             return GeofenceOperationResult.failure(appContext.getString(R.string.geofence_error_missing_task))
         }
-        if (task.latitude !in MIN_LATITUDE..MAX_LATITUDE) {
+        if (!TaskValidator.isValidLatitude(task.latitude)) {
             return GeofenceOperationResult.failure(appContext.getString(R.string.latitude_error))
         }
-        if (task.longitude !in MIN_LONGITUDE..MAX_LONGITUDE) {
+        if (!TaskValidator.isValidLongitude(task.longitude)) {
             return GeofenceOperationResult.failure(appContext.getString(R.string.longitude_error))
         }
-        if (task.radiusMeters <= 0.0) {
+        if (!TaskValidator.isValidRadius(task.radiusMeters)) {
             return GeofenceOperationResult.failure(appContext.getString(R.string.radius_error))
         }
         if (!notificationHelper.canPostNotifications()) {
@@ -227,9 +228,5 @@ class GeofenceManager(context: Context) {
         const val PREFS_NAME = "geofence_manager"
         const val KEY_ENABLED_TASK_IDS = "enabled_task_ids"
         const val GEOFENCE_REQUEST_CODE = 2001
-        const val MIN_LATITUDE = -90.0
-        const val MAX_LATITUDE = 90.0
-        const val MIN_LONGITUDE = -180.0
-        const val MAX_LONGITUDE = 180.0
     }
 }

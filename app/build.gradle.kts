@@ -74,4 +74,5 @@ dependencies {
     implementation("com.google.android.gms:play-services-location:21.4.0")
     implementation("com.google.android.gms:play-services-maps:20.0.0")
     kapt("androidx.room:room-compiler:2.8.4")
+    testImplementation("junit:junit:4.13.2")
 }
